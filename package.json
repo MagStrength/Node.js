@@ -1,0 +1,23 @@
+{
+  "name": "lesson1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "keywords": [],
+  "description": "",
+  "dependencies": {
+    "chart.js": "^4.1.2",
+    "colors": "^1.4.0",
+    "hchs-vue-charts": "^1.2.8",
+    "inquirer": "^8.2.5",
+    "moment": "github:moment/moment#develop"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.18"
+  }
+}
