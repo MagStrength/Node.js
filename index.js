@@ -14,7 +14,7 @@ const validateDate = (arg) => {
     }
 };
 
-// возвращает массис объектов на основе
+// возвращает массив объектов на основе
 const getTimers = (arguments) => {
     let timers = [];
     for (let i = 0; i < arguments.length; i++) {
