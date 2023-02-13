@@ -1,52 +1,62 @@
-const yargs = require('yargs')
-const fs = require('fs')
-const path = require('path')
-const inquirer = require('inquirer')
+import http from "http";
+import fs from "fs";
+import path from "path";
+import { Transform } from "stream";
 
-const options = yargs
-    .usage('Usage: -p <path to directory> -s <searched string>')
-    .option('p', {
-        alias: 'path',
-        describe: 'Path to directory',
-        type: 'string',
-        default: process.cwd(),
-    })
-    .option('s', {
-        alias: 'search',
-        describe: 'Searched string',
-        type: 'string',
-        default: '',
-    }).argv;
+const host = "localhost";
+const port = 3000;
 
-let currentDir = options.p;
+const list = [];
+const fsp = fs.promises;
 
-const readDir = () => {
+const links = (arr, curUrl) => {
+    if (curUrl.endsWith("/")) curUrl = curUrl.substring(0, curUrl.length - 1);
+    let li = "";
+    for (const item of arr) {
+        li += `<li><a href="${curUrl}/${item}">${item}</a></li>`;
+    }
+    return li;
+};
 
-    const fileDirList = fs.readdirSync(currentDir)
+const server = http.createServer((req, res) => {
+    if (req.method === "GET") {
+        const url = req.url.split("?")[0];
+        const curPath = path.join(process.cwd(), url);
 
-    inquirer.prompt([
-        {
-            name: 'fileName',
-            type: 'list',
-            message: 'Выберите файл или директорию для чтения',
-            choices: fileDirList
-        },
-    ]).then(({ fileName }) => {
+        fs.stat(curPath, (err, stats) => {
+            if (!err) {
+                if (stats.isFile(curPath)) {
+                    const rs = fs.createReadStream(curPath, "utf-8");
+                    rs.pipe(res);
+                } else {
+                    fsp
+                        .readdir(curPath)
+                        .then((files) => {
+                            if (url !== "/") files.unshift("..");
+                            return files;
+                        })
+                        .then((data) => {
+                            const filePath = path.join(process.cwd(), "./index.html");
+                            const rs = fs.createReadStream(filePath);
+                            const ts = new Transform({
+                                transform(chunk, encoding, callback) {
+                                    const li = links(data, url);
+                                    this.push(chunk.toString().replace("The first html-page", li));
 
-        const fullPath = path.join(currentDir, fileName);
-        const isDir = fs.lstatSync(fullPath).isDirectory();
+                                    callback();
+                                },
+                            });
 
-        if (isDir) {
-            currentDir = fullPath;
-            readDir()
-        } else {
-            const data = fs.readFileSync(fullPath, 'utf-8');
-            if (options.s == '') console.log('data: ', data);
-            else {
-                const regExp = new RegExp(options.s, 'igm');
-                console.log('Searched string in file: ', data.match(regExp));
+                            rs.pipe(ts).pipe(res);
+                        });
+                }
+            } else {
+                res.end("Path not exists");
             }
-        }
-    })
-}
-readDir();
+        });
+    }
+});
+
+server.listen(port, host, () =>
+    console.log(`Server running at http://${host}:${port}`)
+);
