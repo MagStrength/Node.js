@@ -1,22 +1,21 @@
 {
-  "name": "node",
+  "name": "lesson5",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "type": "module",
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "events": "^3.3.0",
+    "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
+    "inquirer": "^9.1.4",
     "moment": "^2.29.4",
     "moment-precise-range-plugin": "^1.3.0",
-    "fs": "^0.0.1-security",
-    "inquirer": "^9.1.4",
-    "readline": "^1.3.0",
-    "yargs": "^17.6.2"
+    "path": "^0.12.7",
+    "readline": "^1.3.0"
   }
 }
