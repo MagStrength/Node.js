@@ -1,0 +1,67 @@
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="userCount"></div>
+    <div id="userName"></div>
+    <div id="chatBlock"></div>
+    <div>
+        <input type="text" name="chatText" id="chatText" />
+        <button id="sendMessage">Send</button>
+    </div>
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io('localhost:4444');
+    const userCountBlock = document.querySelector('#userCount');
+    const userName = document.querySelector('#userName');
+    const chatBlock = document.querySelector('#chatBlock');
+    const chatText = document.querySelector('#chatText');
+    const sendMessage = document.querySelector('#sendMessage');
+
+    socket.on('setName', (payload) => {
+        userName.innerHTML = `Имя пользователя: ${payload}`;
+    });
+
+    socket.on('changeUserCount', (payload) => {
+        userCountBlock.innerHTML = `Количество пользователей в чате: ${payload}`;
+    });
+
+    socket.on('addUser', (payload) => {
+        chatBlock.insertAdjacentHTML('afterbegin', `<div>Присоединился пользователь: ${payload}</div>`);
+    });
+
+    socket.on('leftUser', (payload) => {
+        chatBlock.insertAdjacentHTML('afterbegin', `<div>Вышел из чата пользователь: ${payload}</div>`);
+    });
+
+    socket.on('newChatMessage', (payload) => {
+        chatBlock.insertAdjacentHTML('afterbegin', `<div>${payload.user}: ${payload.text}</div>`)
+    });
+
+    sendMessage.addEventListener('click', () => {
+        socket.emit('newMessage', chatText.value);
+    });
+
+</script>
+
+<style>
+    #chatBlock {
+        border: 1px solid #6e6e6e;
+        padding: 15px;
+        min-height: 400px;
+        width: 600px;
+        overflow-y: scroll;
+    }
+
+    div {
+        margin: 5px;
+    }
+</style>
+
+</html>
